@@ -39,4 +39,7 @@ public interface TeacherMapper {
 
     @Select("select * from teacher where username = #{username}")
     Teacher selectByUsername(String username);
+
+    @Select("SELECT name FROM teacher WHERE id = #{id}")
+    String selectNameById(Integer id);
 }

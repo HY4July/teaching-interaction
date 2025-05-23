@@ -60,6 +60,13 @@
             <el-menu-item index="/score">我的成绩</el-menu-item>
             <el-menu-item index="/homework">作业提交</el-menu-item>
           </el-submenu>
+          <el-submenu index="rescource">
+            <template slot="title">
+              <i class="el-icon-menu"></i><span>教学资源</span>
+            </template>
+            <el-menu-item index="/teachingResource">共享资源</el-menu-item>
+            <el-menu-item index="/excellentWorks">优秀作品展示</el-menu-item>
+          </el-submenu>
           <el-submenu index="user" v-if="user.role ==='ADMIN'">
             <template slot="title">
               <i class="el-icon-menu"></i><span>用户管理</span>

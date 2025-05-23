@@ -1,6 +1,7 @@
 package com.example.mapper;
 
 import com.example.entity.Course;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -30,5 +31,8 @@ public interface CourseMapper {
      * 查询所有
      */
     List<Course> selectAll(Course course);
+
+    @Select("SELECT name FROM course WHERE id = #{id}")
+    String selectNameById(Integer id);
 
 }

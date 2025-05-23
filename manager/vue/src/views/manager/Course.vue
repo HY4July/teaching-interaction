@@ -25,12 +25,14 @@
         <el-table-column prop="segment" label="第几大节" show-overflow-tooltip></el-table-column>
         <el-table-column prop="status" label="上课状态" show-overflow-tooltip></el-table-column>
 
-        <el-table-column label="操作" width="180" align="center">
+        <el-table-column label="操作" width="240" align="center"> <!-调整宽度以容纳新按钮-->
           <template v-slot="scope">
             <el-button plain type="primary" @click="handleEdit(scope.row)" size="mini" v-if = "user.role !== 'STUDENT'">编辑</el-button>
             <el-button plain type="danger" size="mini" @click=del(scope.row.id) v-if = "user.role === 'ADMIN'">删除</el-button>
+            <el-button plain type="info" size="mini" @click="goToDiscussion(scope.row.id)">讨论区</el-button>
           </template>
         </el-table-column>
+
       </el-table>
 
       <div class="pagination">
@@ -145,6 +147,9 @@ export default {
           this.$message.error(res.msg)
         }
       })
+    },
+    goToDiscussion(courseId) {
+      this.$router.push({ name: 'CourseDiscussionList', params: { courseId: courseId } });
     },
     handleAdd() {   // 新增数据
       this.form = {}  // 新增数据的时候清空数据

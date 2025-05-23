@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ExcellentWorkMapper">
+
+    <sql id="Base_Column_List">
+        ew.id, ew.title, ew.description, ew.student_name, ew.student_id, ew.course_id, ew.file_url, ew.upload_time, ew.uploader_id, ew.uploader_role
+    </sql>
+
+    <resultMap id="ExcellentWorkResultMap" type="com.example.entity.ExcellentWork">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="studentName" column="student_name"/>
+        <result property="studentId" column="student_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="uploadTime" column="upload_time"/>
+        <result property="uploaderId" column="uploader_id"/>
+        <result property="uploaderRole" column="uploader_role"/>
+        <association property="courseName" javaType="java.lang.String"
+                     select="com.example.mapper.CourseMapper.selectNameById" column="course_id"/>
+        <association property="uploaderName" javaType="java.lang.String"
+                     select="selectUploaderNameByIdAndRole" column="{userId=uploader_id, userRole=uploader_role}"/>
+    </resultMap>
+
+    <select id="selectUploaderNameByIdAndRole" resultType="java.lang.String">
+        SELECT
+        <choose>
+            <when test="userRole == 'ADMIN'">
+                name FROM admin WHERE id = #{userId}
+            </when>
+            <when test="userRole == 'TEACHER'">
+                name FROM teacher WHERE id = #{userId}
+            </when>
+            <otherwise>
+                '未知上传者'
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="insert" parameterType="com.example.entity.ExcellentWork" useGeneratedKeys="true" keyProperty="id">
+        insert into excellent_works
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null">title,</if>
+            <if test="description != null">description,</if>
+            <if test="studentName != null">student_name,</if>
+            <if test="studentId != null">student_id,</if>
+            <if test="courseId != null">course_id,</if>
+            <if test="fileUrl != null">file_url,</if>
+            <if test="uploadTime != null">upload_time,</if>
+            <if test="uploaderId != null">uploader_id,</if>
+            <if test="uploaderRole != null">uploader_role,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null">#{title},</if>
+            <if test="description != null">#{description},</if>
+            <if test="studentName != null">#{studentName},</if>
+            <if test="studentId != null">#{studentId},</if>
+            <if test="courseId != null">#{courseId},</if>
+            <if test="fileUrl != null">#{fileUrl},</if>
+            <if test="uploadTime != null">#{uploadTime},</if>
+            <if test="uploaderId != null">#{uploaderId},</if>
+            <if test="uploaderRole != null">#{uploaderRole},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById">
+        delete from excellent_works where id = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="com.example.entity.ExcellentWork">
+        update excellent_works
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="studentName != null">student_name = #{studentName},</if>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+            <if test="fileUrl != null">file_url = #{fileUrl},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="ExcellentWorkResultMap">
+        select <include refid="Base_Column_List"/>,
+        c.name as courseName,
+        CASE ew.uploader_role
+        WHEN 'ADMIN' THEN (SELECT adm.name FROM admin adm WHERE adm.id = ew.uploader_id)
+        WHEN 'TEACHER' THEN (SELECT t.name FROM teacher t WHERE t.id = ew.uploader_id)
+        ELSE '未知'
+        END as uploaderName
+        from excellent_works ew
+        left join course c on ew.course_id = c.id
+        where ew.id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="ExcellentWorkResultMap">
+        select <include refid="Base_Column_List"/>,
+        c.name as courseName,
+        CASE ew.uploader_role
+        WHEN 'ADMIN' THEN (SELECT adm.name FROM admin adm WHERE adm.id = ew.uploader_id)
+        WHEN 'TEACHER' THEN (SELECT t.name FROM teacher t WHERE t.id = ew.uploader_id)
+        ELSE '未知'
+        END as uploaderName
+        from excellent_works ew
+        left join course c on ew.course_id = c.id
+        <where>
+            <if test="title != null and title != ''">
+                and ew.title like concat('%', #{title}, '%')
+            </if>
+            <if test="studentName != null and studentName != ''">
+                and ew.student_name like concat('%', #{studentName}, '%')
+            </if>
+            <if test="courseId != null">
+                and ew.course_id = #{courseId}
+            </if>
+            <if test="uploaderId != null"> and ew.uploader_id = #{uploaderId}
+            </if>
+        </where>
+        order by ew.upload_time desc
+    </select>
+</mapper>

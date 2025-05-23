@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.DiscussionMapper">
+
+    <sql id="Base_Column_List">
+        id, course_id, user_id, user_role, title, content, parent_id, timestamp
+    </sql>
+
+    <resultMap id="DiscussionResultMap" type="com.example.entity.Discussion">
+        <id property="id" column="id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="userRole" column="user_role"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="timestamp" column="timestamp"/>
+        <association property="userName" javaType="java.lang.String" select="selectUserNameByIdAndRole" column="{userId=user_id, userRole=user_role}"/>
+        <association property="userAvatar" javaType="java.lang.String" select="selectUserAvatarByIdAndRole" column="{userId=user_id, userRole=user_role}"/>
+        <association property="courseName" javaType="java.lang.String" select="selectCourseNameById" column="course_id"/>
+    </resultMap>
+
+    <select id="selectUserNameByIdAndRole" resultType="java.lang.String">
+        SELECT
+        <choose>
+            <when test="userRole == 'ADMIN'">
+                name FROM admin WHERE id = #{userId}
+            </when>
+            <when test="userRole == 'TEACHER'">
+                name FROM teacher WHERE id = #{userId}
+            </when>
+            <when test="userRole == 'STUDENT'">
+                name FROM student WHERE id = #{userId}
+            </when>
+            <otherwise>
+                '未知用户'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectUserAvatarByIdAndRole" resultType="java.lang.String">
+        SELECT
+        <choose>
+            <when test="userRole == 'ADMIN'">
+                avatar FROM admin WHERE id = #{userId}
+            </when>
+            <when test="userRole == 'TEACHER'">
+                avatar FROM teacher WHERE id = #{userId}
+            </when>
+            <when test="userRole == 'STUDENT'">
+                avatar FROM student WHERE id = #{userId}
+            </when>
+            <otherwise>
+                NULL
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectCourseNameById" resultType="java.lang.String">
+        SELECT name from course where id = #{courseId}
+    </select>
+
+
+    <insert id="insert" parameterType="com.example.entity.Discussion" useGeneratedKeys="true" keyProperty="id">
+        insert into discussion
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">course_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="userRole != null">user_role,</if>
+            <if test="title != null">title,</if>
+            <if test="content != null">content,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="timestamp != null">timestamp,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">#{courseId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="userRole != null">#{userRole},</if>
+            <if test="title != null">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="timestamp != null">#{timestamp},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById">
+        delete from discussion
+        where id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="DiscussionResultMap">
+        select <include refid="Base_Column_List"/>
+        from discussion
+        where id = #{id}
+    </select>
+
+    <select id="selectTopicsByCourseId" resultMap="DiscussionResultMap">
+        select <include refid="Base_Column_List"/>
+        from discussion
+        where course_id = #{courseId} and parent_id IS NULL
+        <if test="title != null and title != ''">
+            AND title like concat('%', #{title}, '%')
+        </if>
+        order by timestamp desc
+    </select>
+
+    <select id="selectRepliesByParentId" resultMap="DiscussionResultMap">
+        select <include refid="Base_Column_List"/>
+        from discussion
+        where parent_id = #{parentId}
+        order by timestamp asc
+    </select>
+
+</mapper>

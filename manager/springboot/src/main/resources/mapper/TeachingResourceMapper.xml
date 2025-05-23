@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.TeachingResourceMapper">
+
+    <sql id="Base_Column_List">
+        tr.id, tr.name, tr.description, tr.file_url, tr.uploader_id, tr.upload_time, tr.category, tr.course_id
+    </sql>
+
+    <resultMap id="TeachingResourceResultMap" type="com.example.entity.TeachingResource">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="uploaderId" column="uploader_id"/>
+        <result property="uploadTime" column="upload_time"/>
+        <result property="category" column="category"/>
+        <result property="courseId" column="course_id"/>
+        <association property="uploaderName" javaType="java.lang.String"
+                     select="com.example.mapper.TeacherMapper.selectNameById" column="uploader_id"/>
+        <association property="courseName" javaType="java.lang.String"
+                     select="com.example.mapper.CourseMapper.selectNameById" column="course_id"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.entity.TeachingResource" useGeneratedKeys="true" keyProperty="id">
+        insert into teaching_resource
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="description != null">description,</if>
+            <if test="fileUrl != null">file_url,</if>
+            <if test="uploaderId != null">uploader_id,</if>
+            <if test="uploadTime != null">upload_time,</if>
+            <if test="category != null">category,</if>
+            <if test="courseId != null">course_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="description != null">#{description},</if>
+            <if test="fileUrl != null">#{fileUrl},</if>
+            <if test="uploaderId != null">#{uploaderId},</if>
+            <if test="uploadTime != null">#{uploadTime},</if>
+            <if test="category != null">#{category},</if>
+            <if test="courseId != null">#{courseId},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteById">
+        delete from teaching_resource where id = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="com.example.entity.TeachingResource">
+        update teaching_resource
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="fileUrl != null">file_url = #{fileUrl},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="courseId != null">course_id = #{courseId},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="TeachingResourceResultMap">
+        select <include refid="Base_Column_List"/>, t.name as teacherName, c.name as courseName
+        from teaching_resource tr
+        left join teacher t on tr.uploader_id = t.id
+        left join course c on tr.course_id = c.id
+        where tr.id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="TeachingResourceResultMap">
+        select <include refid="Base_Column_List"/>, t.name as teacherName, c.name as courseName
+        from teaching_resource tr
+        left join teacher t on tr.uploader_id = t.id
+        left join course c on tr.course_id = c.id
+        <where>
+            <if test="name != null and name != ''">
+                and tr.name like concat('%', #{name}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                and tr.category = #{category}
+            </if>
+            <if test="courseId != null">
+                and tr.course_id = #{courseId}
+            </if>
+            <if test="uploaderId != null"> and tr.uploader_id = #{uploaderId}
+            </if>
+        </where>
+        order by tr.upload_time desc
+    </select>
+
+</mapper>
