@@ -208,4 +208,82 @@ CREATE TABLE `homework`  (
 -- Records of homework
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for discussion
+-- ----------------------------
+DROP TABLE IF EXISTS `discussion`;
+CREATE TABLE `discussion`  (
+                               `id` int(0) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+                               `course_id` int(0) NOT NULL COMMENT '关联课程ID',
+                               `user_id` int(0) NOT NULL COMMENT '发布用户ID (学生或教师)',
+                               `user_role` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发布用户角色 (STUDENT, TEACHER)',
+                               `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '讨论主题 (如果是主贴)',
+                               `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '讨论内容',
+                               `parent_id` int(0) NULL DEFAULT NULL COMMENT '父级讨论ID (用于回复，指向主贴或其他回复)',
+                               `timestamp` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '发布时间',
+                               PRIMARY KEY (`id`) USING BTREE,
+                               INDEX `idx_course_id`(`course_id`) USING BTREE,
+                               INDEX `idx_parent_id`(`parent_id`) USING BTREE,
+                               CONSTRAINT `fk_discussion_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                               CONSTRAINT `fk_discussion_parent` FOREIGN KEY (`parent_id`) REFERENCES `discussion` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '讨论区表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of discussion
+-- ----------------------------
+INSERT INTO `discussion` VALUES (1, 2, 2, 'TEACHER', 'PTA作业答疑统计', '回复需要课堂讲解的题目', NULL, '2025-05-23 19:09:03');
+INSERT INTO `discussion` VALUES (2, 2, 1, 'STUDENT', NULL, '第一题', 1, '2025-05-23 19:09:35');
+INSERT INTO `discussion` VALUES (3, 2, 2, 'STUDENT', NULL, '没有要讲的，我都会', 1, '2025-05-23 19:10:15');
+
+-- ----------------------------
+-- Table structure for teaching_resource
+-- ----------------------------
+DROP TABLE IF EXISTS `teaching_resource`;
+CREATE TABLE `teaching_resource`  (
+                                      `id` int(0) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+                                      `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '资源名称',
+                                      `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '资源描述',
+                                      `file_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '文件存储路径或链接',
+                                      `uploader_id` int(0) NOT NULL COMMENT '上传者ID (应为教师ID)',
+                                      `upload_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '上传时间',
+                                      `category` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '资源分类 (如: 课件, 视频, 习题, 案例)',
+                                      `course_id` int(0) NULL DEFAULT NULL COMMENT '关联课程ID (可选)',
+                                      PRIMARY KEY (`id`) USING BTREE,
+                                      INDEX `idx_uploader_id`(`uploader_id`) USING BTREE,
+                                      INDEX `idx_course_id_tr`(`course_id`) USING BTREE,
+                                      CONSTRAINT `fk_resource_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+                                      CONSTRAINT `fk_resource_teacher` FOREIGN KEY (`uploader_id`) REFERENCES `teacher` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '教学资源信息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of teaching_resource
+-- ----------------------------
+INSERT INTO `teaching_resource` VALUES (1, '测试', '。。。。', 'http://localhost:9090/files/1748003029767-资源test.txt', 2, '2025-05-23 20:24:05', '其他', 1);
+
+-- ----------------------------
+-- Table structure for excellent_works
+-- ----------------------------
+DROP TABLE IF EXISTS `excellent_works`;
+CREATE TABLE `excellent_works`  (
+                                    `id` int(0) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+                                    `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '作品标题',
+                                    `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '作品描述',
+                                    `student_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '学生姓名 (作者)',
+                                    `student_id` int(0) NULL DEFAULT NULL COMMENT '关联学生ID (可选)',
+                                    `course_id` int(0) NULL DEFAULT NULL COMMENT '关联课程ID (可选,表明是哪个课程的作品)',
+                                    `file_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '作品文件或预览图链接/视频链接',
+                                    `upload_time` datetime(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '上传时间',
+                                    `uploader_id` int(0) NOT NULL COMMENT '上传者ID (管理员或教师)',
+                                    `uploader_role` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '上传者角色',
+                                    PRIMARY KEY (`id`) USING BTREE,
+                                    INDEX `idx_course_id_ew`(`course_id`) USING BTREE,
+                                    INDEX `idx_student_id_ew`(`student_id`) USING BTREE,
+                                    INDEX `idx_uploader_id_ew`(`uploader_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '优秀作品表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of excellent_works
+-- ----------------------------
+INSERT INTO `excellent_works` VALUES (1, '测试', '优秀作品样例', '张伟', 2, 2, 'http://localhost:9090/files/1748003655925-优秀作品test.docx', '2025-05-23 20:34:36', 2, 'TEACHER');
+
 SET FOREIGN_KEY_CHECKS = 1;
