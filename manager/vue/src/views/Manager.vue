@@ -57,14 +57,14 @@
               <i class="el-icon-menu"></i><span>课程管理</span>
             </template>
             <el-menu-item index="/course">课程信息</el-menu-item>
-            <el-menu-item index="/score">我的成绩</el-menu-item>
+            <el-menu-item index="/score">成绩管理</el-menu-item>
             <el-menu-item index="/homework">作业提交</el-menu-item>
           </el-submenu>
           <el-submenu index="rescource">
             <template slot="title">
-              <i class="el-icon-menu"></i><span>教学资源</span>
+              <i class="el-icon-menu"></i><span>平台资源</span>
             </template>
-            <el-menu-item index="/teachingResource">共享资源</el-menu-item>
+            <el-menu-item index="/teachingResource">教学资源</el-menu-item>
             <el-menu-item index="/excellentWorks">优秀作品展示</el-menu-item>
           </el-submenu>
           <el-submenu index="user" v-if="user.role ==='ADMIN'">

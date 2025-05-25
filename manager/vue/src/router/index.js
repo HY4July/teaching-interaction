@@ -30,12 +30,12 @@ const routes = [
       { path: 'speciality', name: 'Speciality', meta: { name: '专业信息' }, component: () => import('../views/manager/Speciality') },
       { path: 'classes', name: 'Classes', meta: { name: '班级信息' }, component: () => import('../views/manager/Classes') },
       { path: 'course', name: 'Course', meta: { name: '课程信息' }, component: () => import('../views/manager/Course') },
-      { path: 'score', name: 'Score', meta: { name: '我的成绩' }, component: () => import('../views/manager/Score') },
+      { path: 'score', name: 'Score', meta: { name: '成绩管理' }, component: () => import('../views/manager/Score') },
       { path: 'homework', name: 'Homework', meta: { name: '作业提交' }, component: () => import('../views/manager/Homework') },
       { path: 'course/:courseId/discussion', name: 'CourseDiscussionList', meta: { name: '课程讨论区' }, component: () => import('../views/manager/CourseDiscussionList.vue'), props: true },
       { path: 'discussion/:topicId', name: 'DiscussionTopicView', meta: { name: '查看讨论帖' }, component: () => import('../views/manager/DiscussionTopicView.vue'), props: true },
       { path: 'teachingResource', name: 'TeachingResource', meta: { name: '教学资源' }, component: () => import('../views/manager/TeachingResource.vue') },
-      { path: 'excellentWorks', name: 'ExcellentWorks', meta: { name: '优秀作品展' }, component: () => import('../views/manager/ExcellentWorks.vue') },
+      { path: 'excellentWorks', name: 'ExcellentWorks', meta: { name: '优秀作品展示' }, component: () => import('../views/manager/ExcellentWorks.vue') },
     ]
   },
   {
